@@ -84,6 +84,7 @@ public class ImageLoader {
      * @param bitmap
      */
     public void putCache(String key, Bitmap bitmap) {
+        if(lruCache.get(key)==null)
         lruCache.put(key, bitmap);
     }
 
@@ -124,25 +125,38 @@ public class ImageLoader {
                 @Override
                 public void run() {
                     ImageSize imageSize = Util.getImageSize(imageView);
-                    BitmapFactory.Options option=new BitmapFactory.Options();
+                    BitmapFactory.Options option = new BitmapFactory.Options();
                     //不加载到内存，值获取图片的大小
-                    option.inJustDecodeBounds=true;
-                    BitmapFactory.decodeFile(path,option);
-                    int singleOption=cacluteInSingleOpition(option,imageSize.width,imageSize.height);
-
-
+                    option.inJustDecodeBounds = true;
+                    BitmapFactory.decodeFile(path, option);
+                    int inSampleSize = cacluteInSingleOpition(option, imageSize.width, imageSize.height);
+                    option.inJustDecodeBounds=false;
+                    option.inSampleSize=inSampleSize;
+                    Bitmap bitmap=BitmapFactory.decodeFile(path,option);
+                    if(bitmap!=null)
+                    {
+                        putCache(path,bitmap);
+                        updateUi(path,bitmap,imageView);
+                    }
                 }
             };
             addTask(runnable);
         }
     }
 
-    private int cacluteInSingleOpition(BitmapFactory.Options option,int width,int height) {
-        int optionSize=0;
-        int widthRaiods= (int) (width*1.0f/option.outWidth);
-        int heightRaiods= (int) (height*1.0f/option.outHeight);
-        optionSize=Math.max(widthRaiods,heightRaiods);
-        return  optionSize;
+    /**
+     * 计算inSampleSize大小
+     * @param option
+     * @param width
+     * @param height
+     * @return
+     */
+    private int cacluteInSingleOpition(BitmapFactory.Options option, int width, int height) {
+        int optionSize = 0;
+        int widthRaiods = (int) (width * 1.0f / option.outWidth);
+        int heightRaiods = (int) (height * 1.0f / option.outHeight);
+        optionSize = Math.max(widthRaiods, heightRaiods);
+        return optionSize;
     }
 
     private void addTask(Runnable runnable) {
