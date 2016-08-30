@@ -1,5 +1,6 @@
 package com.example.xxnan.crasher.picpreview.imageUtil;
 
+import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -51,5 +52,16 @@ public class Util {
             e.printStackTrace();
         }
         return value;
+    }
+
+    /**
+     * 判断sd卡是否存在
+     * @return
+     */
+    public static boolean isSdCardExist()
+    {
+       if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+           return true;
+        return false;
     }
 }

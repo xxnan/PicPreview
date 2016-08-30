@@ -13,6 +13,8 @@ import android.widget.TextView;
 
 import com.example.xxnan.crasher.picpreview.adapter.GridViewAdapter;
 import com.example.xxnan.crasher.picpreview.bean.ImageInfo;
+import com.example.xxnan.crasher.picpreview.imageUtil.ToastUtil;
+import com.example.xxnan.crasher.picpreview.imageUtil.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +39,10 @@ public class MainActivity extends AppCompatActivity {
      * 从ContentResolver获取图片
      */
     private void intData() {
+        if(!Util.isSdCardExist()) {
+            ToastUtil.getInstance().showtext(MainActivity.this, "SD卡不存在！");
+            return;
+        }
         loadUri(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID
                 , MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, MediaStore.Images.Thumbnails.DATA, MediaStore.Images.Thumbnails.IMAGE_ID
