@@ -1,6 +1,7 @@
 package com.example.xxnan.crasher.picpreview.imageUtil;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -112,7 +113,7 @@ public class ImageLoader {
      * @param path
      * @param imageView
      */
-    public void loadImage(String path, final ImageView imageView) {
+    public void loadImage(final String path, final ImageView imageView) {
         imageView.setTag(path);
         Bitmap bitmap = lruCache.get(path);
         if (bitmap != null) {
@@ -123,10 +124,25 @@ public class ImageLoader {
                 @Override
                 public void run() {
                     ImageSize imageSize = Util.getImageSize(imageView);
+                    BitmapFactory.Options option=new BitmapFactory.Options();
+                    //不加载到内存，值获取图片的大小
+                    option.inJustDecodeBounds=true;
+                    BitmapFactory.decodeFile(path,option);
+                    int singleOption=cacluteInSingleOpition(option,imageSize.width,imageSize.height);
+
+
                 }
             };
             addTask(runnable);
         }
+    }
+
+    private int cacluteInSingleOpition(BitmapFactory.Options option,int width,int height) {
+        int optionSize=0;
+        int widthRaiods= (int) (width*1.0f/option.outWidth);
+        int heightRaiods= (int) (height*1.0f/option.outHeight);
+        optionSize=Math.max(widthRaiods,heightRaiods);
+        return  optionSize;
     }
 
     private void addTask(Runnable runnable) {
