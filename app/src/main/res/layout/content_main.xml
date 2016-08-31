@@ -28,9 +28,17 @@
             android:text="1"
             android:textColor="@android:color/white"/>
     </RelativeLayout>
-    <android.support.v7.widget.RecyclerView
+   <!-- <android.support.v7.widget.RecyclerView
         android:id="@+id/pic_recycleview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent" />-->
+    <GridView
+        android:id="@+id/pic_gridview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:horizontalSpacing="3dp"
+        android:verticalSpacing="3dp"
+        android:numColumns="3"
+        />
 
 </RelativeLayout>

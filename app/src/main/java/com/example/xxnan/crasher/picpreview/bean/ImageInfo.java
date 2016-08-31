@@ -18,9 +18,12 @@ public class ImageInfo {
     }
 
     public String getName() {
-        return path.substring(path.lastIndexOf("/"));
+        return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getPath() {
         return path;
@@ -28,6 +31,7 @@ public class ImageInfo {
 
     public void setPath(String path) {
         this.path = path;
+        name=path.substring(path.lastIndexOf("/")+1);
     }
 
     public String getDate() {

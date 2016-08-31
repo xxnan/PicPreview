@@ -35,6 +35,7 @@ public class GridViewAdapter  extends RecyclerView.Adapter<MyHoder>{
     @Override
     public void onBindViewHolder(MyHoder holder, int position) {
         ImageLoader.getInstance().loadImage(list.get(position).getPath(),holder.imageView);
+//        holder.imageView.setBackgroundResource(R.mipmap.ic_launcher);
     }
 
     @Override
