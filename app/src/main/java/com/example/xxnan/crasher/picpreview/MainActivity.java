@@ -25,7 +25,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    //    private RecyclerView recyclerView;
     private GridView pic_gridview;
     private GridAdapter gridAdapter;
     private RelativeLayout relativeLayout;
@@ -33,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private List<ImageInfo> imageList = new ArrayList<ImageInfo>();
     private GridViewAdapter myAdapter;
     private ProgressDialog progressDialog;
+    private List<String> mDirPaths=new ArrayList<String>();
     private Handler myhHandle =new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         progressDialog=ProgressDialog.show(MainActivity.this,null,"正在加载...");
-        progressDialog.show();
+//        progressDialog.show();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -78,23 +78,23 @@ public class MainActivity extends AppCompatActivity {
             if (parentFile == null)
                 continue;
             String dirPath = parentFile.getAbsolutePath();
+            if(mDirPaths.contains(dirPath))
+                continue;
+            else
+            mDirPaths.add(dirPath);
+
             info.setPath(path);
             info.setDirPath(dirPath);
             imageList.add(info);
-
         }
         cursor.close();
         myhHandle.sendEmptyMessage(0X11);
     }
 
     private void initView() {
-//        recyclerView = (RecyclerView) findViewById(R.id.pic_recycleview);
-//        recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 2));
-//        recyclerView.setAdapter(myAdapter);
         relativeLayout = (RelativeLayout) findViewById(R.id.rlayout);
         dirName = (TextView) findViewById(R.id.dir_name);
         dirCount = (TextView) findViewById(R.id.dir_count);
-//        myAdapter = new GridViewAdapter(getApplicationContext(), imageList);
         gridAdapter = new GridAdapter(getApplicationContext(), imageList);
         pic_gridview = (GridView) findViewById(R.id.pic_gridview);
         pic_gridview.setAdapter(gridAdapter);
