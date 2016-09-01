@@ -4,18 +4,10 @@ package com.example.xxnan.crasher.picpreview.bean;
  * Created by xxnan on 2016/8/30.
  */
 public class ImageInfo {
-    private int id;//图片Id
     private String path;//图片路径
     private String name;//图片名称
-    private String date;//图片日期
+    private String dirPath;//图片父目录
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -34,11 +26,11 @@ public class ImageInfo {
         name=path.substring(path.lastIndexOf("/")+1);
     }
 
-    public String getDate() {
-        return date;
+    public String getDirPath() {
+        return dirPath;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setDirPath(String dirPath) {
+        this.dirPath = dirPath;
     }
 }

@@ -1,9 +1,12 @@
 package com.example.xxnan.crasher.picpreview;
 
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.GridView;
@@ -16,19 +19,28 @@ import com.example.xxnan.crasher.picpreview.bean.ImageInfo;
 import com.example.xxnan.crasher.picpreview.imageUtil.ToastUtil;
 import com.example.xxnan.crasher.picpreview.imageUtil.Util;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-//    private RecyclerView recyclerView;
+    //    private RecyclerView recyclerView;
     private GridView pic_gridview;
     private GridAdapter gridAdapter;
     private RelativeLayout relativeLayout;
     private TextView dirName, dirCount;
     private List<ImageInfo> imageList = new ArrayList<ImageInfo>();
     private GridViewAdapter myAdapter;
-
+    private ProgressDialog progressDialog;
+    private Handler myhHandle =new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            progressDialog.dismiss();
+            gridAdapter.notifyDataSetChanged();
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,47 +53,38 @@ public class MainActivity extends AppCompatActivity {
      * 从ContentResolver获取图片
      */
     private void intData() {
-        if(!Util.isSdCardExist()) {
+        if (!Util.isSdCardExist()) {
             ToastUtil.getInstance().showtext(MainActivity.this, "SD卡不存在！");
             return;
         }
-        loadUri(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID
-                , MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, MediaStore.Images.Thumbnails.DATA, MediaStore.Images.Thumbnails.IMAGE_ID
-                , MediaStore.Images.Media.DATE_MODIFIED + " desc ");
+        progressDialog=ProgressDialog.show(MainActivity.this,null,"正在加载...");
+        progressDialog.show();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                loadUri();
+            }
+        }).start();
     }
 
-    private void loadUri(Uri externalContentUri, String data, String id, Uri externalContentUri1, String data1, String imageId, String s) {
-
-
-
+    private void loadUri() {
+        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         ContentResolver contentResolver = getContentResolver();
-        //获得外部存储卡上的图片缩略图
-       /* Cursor cursor = contentResolver.query(externalContentUri, null, null, null, null);
+        Cursor cursor = contentResolver.query(uri, null, MediaStore.Images.Media.MIME_TYPE + "=? or " + MediaStore.Images.Media.MIME_TYPE + "=? ", new String[]{"image/png", "image/jpeg"}, MediaStore.Images.Media.DATE_MODIFIED);
         while (cursor.moveToNext()) {
             ImageInfo info = new ImageInfo();
-            info.setId(cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media._ID)));
-            info.setPath(cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA)));
-//            info.setDate(cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED)));
-            imageList.add(info);
-        }
-        cursor.close();*/
-        String[] projection = { MediaStore.Images.Thumbnails._ID  ,MediaStore.Images.Thumbnails.DATA};
-        Cursor cursor = contentResolver.query(
-                MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI,//指定缩略图数据库的Uri
-                null,//指定所要查询的字段
-                null,//查询条件
-                null, //查询条件中问号对应的值
-                null);
-        while (cursor.moveToNext()) {
-            ImageInfo info = new ImageInfo();
-            info.setId(cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Thumbnails._ID)));
-            info.setPath(cursor.getString(cursor.getColumnIndex(MediaStore.Images.Thumbnails.DATA)));
+            String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Thumbnails.DATA));
+            File parentFile = new File(path).getParentFile();
+            if (parentFile == null)
+                continue;
+            String dirPath = parentFile.getAbsolutePath();
+            info.setPath(path);
+            info.setDirPath(dirPath);
             imageList.add(info);
 
         }
         cursor.close();
-        gridAdapter.notifyDataSetChanged();
+        myhHandle.sendEmptyMessage(0X11);
     }
 
     private void initView() {
@@ -92,8 +95,8 @@ public class MainActivity extends AppCompatActivity {
         dirName = (TextView) findViewById(R.id.dir_name);
         dirCount = (TextView) findViewById(R.id.dir_count);
 //        myAdapter = new GridViewAdapter(getApplicationContext(), imageList);
-        gridAdapter=new GridAdapter(getApplicationContext(), imageList);
-        pic_gridview= (GridView) findViewById(R.id.pic_gridview);
+        gridAdapter = new GridAdapter(getApplicationContext(), imageList);
+        pic_gridview = (GridView) findViewById(R.id.pic_gridview);
         pic_gridview.setAdapter(gridAdapter);
     }
 

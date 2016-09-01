@@ -152,9 +152,9 @@ public class ImageLoader {
      * @return
      */
     private int cacluteInSingleOpition(BitmapFactory.Options option, int width, int height) {
-        int optionSize = 0;
-        int widthRaiods = (int) (width * 1.0f / option.outWidth);
-        int heightRaiods = (int) (height * 1.0f / option.outHeight);
+        int optionSize = 1;
+        int widthRaiods = (int) ( option.outWidth * 1.0f / width);
+        int heightRaiods = (int) (option.outHeight * 1.0f / height);
         optionSize = Math.max(widthRaiods, heightRaiods);
         return optionSize;
     }

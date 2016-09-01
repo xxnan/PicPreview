@@ -25,15 +25,15 @@ public class Util {
         int width = imageView.getWidth();
         if (width <= 0)
             width = layoutParams.width;
-//        if (width <= 0)
-//            width = getValueFiledName(imageView,"mMaxWidth");
+        if (width <= 0)
+            width = getValueFiledName(imageView,"mMaxWidth");
         if (width <= 0)
             width = displayMetrics.widthPixels;
         int height = imageView.getHeight();
         if (height <= 0)
             height = layoutParams.height;
-//        if (height <= 0)
-//            height =getValueFiledName(imageView,"mMaxHeight");
+        if (height <= 0)
+            height =getValueFiledName(imageView,"mMaxHeight");
         if (height <= 0)
             height = displayMetrics.heightPixels;
         imageSize.width=width;
@@ -44,7 +44,8 @@ public class Util {
     {
         int value=0;
         try {
-            Field field=obj.getClass().getField(filedName);
+            Field field=ImageView.class.getDeclaredField(filedName);
+            field.setAccessible(true);
             int fieldvalue= field.getInt(filedName);
             if(fieldvalue>0&&fieldvalue<Integer.MAX_VALUE)
                value=fieldvalue;
