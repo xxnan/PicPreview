@@ -64,8 +64,7 @@ public class GridAdapter extends BaseAdapter {
                 if (set.contains(path)) {
                     set.remove(path);
                     holder.image_select.setBackgroundResource(R.drawable.image_unselect);
-                }
-                else {
+                } else {
                     set.add(path);
                     holder.image_select.setBackgroundResource(R.drawable.image_select);
                 }

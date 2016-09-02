@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+  <ImageView
+      android:id="@+id/image_dir"
+      android:layout_width="100dp"
+      android:layout_height="100dp"
+      android:scaleType="centerCrop"/>
+   <LinearLayout
+       android:layout_toRightOf="@+id/image_dir"
+       android:layout_width="wrap_content"
+       android:layout_height="100dp"
+       android:orientation="vertical">
+     <TextView
+         android:id="@+id/dir_tv"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:gravity="center"
+         android:text="xxx"/>
+     <TextView
+         android:id="@+id/dir_count_tv"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:gravity="center"
+         android:text="22"/>
+   </LinearLayout>
+</RelativeLayout>

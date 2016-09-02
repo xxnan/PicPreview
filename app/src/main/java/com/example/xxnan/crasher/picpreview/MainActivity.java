@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.GridView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -32,15 +33,21 @@ public class MainActivity extends AppCompatActivity {
     private List<ImageInfo> imageList = new ArrayList<ImageInfo>();
     private GridViewAdapter myAdapter;
     private ProgressDialog progressDialog;
-    private List<String> mDirPaths=new ArrayList<String>();
-    private Handler myhHandle =new Handler() {
+    private List<String> mDirPaths = new ArrayList<String>();
+    private String dirNameContent = "";
+    private int dirCountContent = 0;
+    private boolean isPoPupWindowShow;
+    private Handler myhHandle = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             progressDialog.dismiss();
+            dirName.setText(dirNameContent);
+            dirCount.setText(dirCountContent+"");
             gridAdapter.notifyDataSetChanged();
         }
     };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,35 +64,52 @@ public class MainActivity extends AppCompatActivity {
             ToastUtil.getInstance().showtext(MainActivity.this, "SD卡不存在！");
             return;
         }
-        progressDialog=ProgressDialog.show(MainActivity.this,null,"正在加载...");
-//        progressDialog.show();
+        progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog.setMessage("正在加载...");
+        progressDialog.show();
         new Thread(new Runnable() {
             @Override
             public void run() {
+                try {
+                    //模拟延时
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 loadUri();
             }
         }).start();
     }
 
+    /**
+     * 从ContentResolver中获取所有图片
+     */
     private void loadUri() {
         Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         ContentResolver contentResolver = getContentResolver();
-        Cursor cursor = contentResolver.query(uri, null, MediaStore.Images.Media.MIME_TYPE + "=? or " + MediaStore.Images.Media.MIME_TYPE + "=? ", new String[]{"image/png", "image/jpeg"}, MediaStore.Images.Media.DATE_MODIFIED);
+        Cursor cursor = contentResolver.query(uri, null, MediaStore.Images.Media.MIME_TYPE + "=? or "
+                + MediaStore.Images.Media.MIME_TYPE + "=? or "
+                + MediaStore.Images.Media.MIME_TYPE + "=? ", new String[]{"image/jpg", "image/png", "image/jpeg"},
+                MediaStore.Images.Media.DATE_MODIFIED);
         while (cursor.moveToNext()) {
             ImageInfo info = new ImageInfo();
-            String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Thumbnails.DATA));
+            String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             File parentFile = new File(path).getParentFile();
             if (parentFile == null)
                 continue;
             String dirPath = parentFile.getAbsolutePath();
-            if(mDirPaths.contains(dirPath))
+            if (mDirPaths.contains(dirPath))
                 continue;
             else
-            mDirPaths.add(dirPath);
+                mDirPaths.add(dirPath);
 
             info.setPath(path);
             info.setDirPath(dirPath);
             imageList.add(info);
+        }
+        if (mDirPaths.size() > 0) {
+            dirNameContent = mDirPaths.get(0).toString();
+            dirCountContent = imageList.size();
         }
         cursor.close();
         myhHandle.sendEmptyMessage(0X11);
@@ -93,6 +117,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         relativeLayout = (RelativeLayout) findViewById(R.id.rlayout);
+        relativeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isPoPupWindowShow) {
+                    //显示popwindow
+                    isPoPupWindowShow = true;
+                } else {
+                    //隐藏popwindow
+                    isPoPupWindowShow = false;
+                }
+            }
+        });
         dirName = (TextView) findViewById(R.id.dir_name);
         dirCount = (TextView) findViewById(R.id.dir_count);
         gridAdapter = new GridAdapter(getApplicationContext(), imageList);
