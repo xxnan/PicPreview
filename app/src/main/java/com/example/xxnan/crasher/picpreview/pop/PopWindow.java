@@ -1,8 +1,10 @@
 package com.example.xxnan.crasher.picpreview.pop;
 
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -40,7 +42,20 @@ public class PopWindow extends PopupWindow{
         setWidth(width);
         setHeight(height);
         this.setFocusable(true);
+        this.setTouchable(true);
         this.setOutsideTouchable(true);
+        setBackgroundDrawable(new BitmapDrawable());
+        setTouchInterceptor(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction()==MotionEvent.ACTION_OUTSIDE)
+                {
+                    dismiss();
+                    return true;
+                }
+                return false;
+            }
+        });
         listView= (ListView) contentView.findViewById(R.id.dir_list);
         imageAdapter=new ImageAdapter(context);
         listView.setAdapter(imageAdapter);
