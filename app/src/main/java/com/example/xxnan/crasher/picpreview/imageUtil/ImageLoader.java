@@ -21,12 +21,17 @@ import java.util.concurrent.Semaphore;
  * Created by Administrator on 2016/8/29.
  */
 public class ImageLoader {
-    private static ImageLoader imageLoader;
+    private static ImageLoader imageLoader=new ImageLoader(3,Type.LIFO);;
     private static final int DEAFULT_MSG = 0X110;
     private static final int DEAFULT_THREAD_COUNT = 3;
     private LruCache<String, Bitmap> lruCache;
     private ExecutorService mThreadPool;
     private LinkedList<Runnable> taskQuene;
+    private enum Type
+    {
+        FIFO,LIFO;
+    }
+    public static Type mType;
     private Semaphore poolHandlerSemaphore = new Semaphore(0);
     private Handler mUiHandler = new Handler() {
         @Override
@@ -42,8 +47,7 @@ public class ImageLoader {
     };
     private Thread mThreadPoolThread;
     private Handler poolHandler;
-
-    private ImageLoader() {
+    private ImageLoader(int threadcount,Type type) {
         mThreadPoolThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -71,10 +75,15 @@ public class ImageLoader {
         };
         mThreadPool = Executors.newFixedThreadPool(DEAFULT_THREAD_COUNT);
         taskQuene = new LinkedList<Runnable>();
+        mType=type;
     }
 
     private Runnable getTask() {
-        return taskQuene.removeLast();
+        if(mType==Type.FIFO)
+            return taskQuene.removeLast();
+        if(mType==Type.LIFO)
+            return taskQuene.removeFirst();
+        return null;
     }
 
     /**
@@ -102,7 +111,7 @@ public class ImageLoader {
         if (imageLoader == null) {
             synchronized (ImageLoader.class) {
                 if (imageLoader == null)
-                    imageLoader = new ImageLoader();
+                    imageLoader = new ImageLoader(DEAFULT_THREAD_COUNT,mType);
             }
         }
         return imageLoader;
