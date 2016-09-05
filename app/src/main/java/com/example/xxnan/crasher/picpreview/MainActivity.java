@@ -15,8 +15,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.xxnan.crasher.picpreview.adapter.GridAdapter;
-import com.example.xxnan.crasher.picpreview.adapter.GridViewAdapter;
-import com.example.xxnan.crasher.picpreview.bean.FileBean;
 import com.example.xxnan.crasher.picpreview.bean.ImageInfo;
 import com.example.xxnan.crasher.picpreview.imageUtil.ToastUtil;
 import com.example.xxnan.crasher.picpreview.imageUtil.Util;
@@ -33,14 +31,11 @@ public class MainActivity extends AppCompatActivity {
     private RelativeLayout relativeLayout;
     private TextView dirName, dirCount;
     private List<ImageInfo> imageList = new ArrayList<ImageInfo>();
-    private GridViewAdapter myAdapter;
     private ProgressDialog progressDialog;
     private List<String> mDirPaths = new ArrayList<String>();
     private String dirNameContent = "";
     private int dirCountContent = 0;
     private PopWindow popWindow;
-    private boolean isPoPupWindowShow;
-    List<FileBean> fileList;
     private Handler myhHandle = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -113,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < names.length; i++) {
                 if (names[i].endsWith(".jpg") || names[i].endsWith(".png") || names[i].endsWith(".jpeg")) {
                     ImageInfo info = new ImageInfo();
-                    info.setPath(dirPath+"/"+names[i]);
+                    info.setPath(dirPath + "/" + names[i]);
                     info.setDirPath(dirPath);
                     imageList.add(info);
                 }
@@ -135,17 +130,29 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (popWindow == null)
-                    popWindow = new PopWindow(MainActivity.this, fileList);
-                if (!isPoPupWindowShow) {
-                    //显示popwindow
-                    popWindow.showAsDropDown(relativeLayout);
+                    popWindow = new PopWindow(MainActivity.this, mDirPaths);
+                popWindow.setOnClickListen(new PopWindow.OnClickListen() {
+                    @Override
+                    public void onClick(String dirpath) {
+                        imageList.clear();
+                        File file = new File(dirpath);
+                        String names[] = file.list();
+                        for (int i = 0; i < names.length; i++) {
+                            if (names[i].endsWith(".jpg") || names[i].endsWith(".png") || names[i].endsWith(".jpeg")) {
+                                ImageInfo info = new ImageInfo();
+                                info.setPath(dirpath + "/" + names[i]);
+                                info.setDirPath(dirpath);
+                                imageList.add(info);
+                            }
+                        }
+                        dirNameContent = dirpath;
+                        dirCountContent = imageList.size();
+                        myhHandle.sendEmptyMessage(0x11);
 
-                    isPoPupWindowShow = true;
-                } else {
-                    //隐藏popwindow
-                    popWindow.dismiss();
-                    isPoPupWindowShow = false;
-                }
+                    }
+                });
+                //显示popwindow
+                popWindow.showAsDropDown(relativeLayout);
             }
         });
         dirName = (TextView) findViewById(R.id.dir_name);
