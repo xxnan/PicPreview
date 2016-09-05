@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
                         + MediaStore.Images.Media.MIME_TYPE + "=? ", new String[]{"image/jpg", "image/png", "image/jpeg"},
                 MediaStore.Images.Media.DATE_MODIFIED);
         while (cursor.moveToNext()) {
-            ImageInfo info = new ImageInfo();
             String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             File parentFile = new File(path).getParentFile();
             if (parentFile == null)
@@ -106,39 +105,29 @@ public class MainActivity extends AppCompatActivity {
                 continue;
             else
                 mDirPaths.add(dirPath);
+        }
 
-            info.setPath(path);
-            info.setDirPath(dirPath);
-            imageList.add(info);
+        for (String dirPath : mDirPaths) {
+            File file = new File(dirPath);
+            String names[] = file.list();
+            for (int i = 0; i < names.length; i++) {
+                if (names[i].endsWith(".jpg") || names[i].endsWith(".png") || names[i].endsWith(".jpeg")) {
+                    ImageInfo info = new ImageInfo();
+                    info.setPath(dirPath+"/"+names[i]);
+                    info.setDirPath(dirPath);
+                    imageList.add(info);
+                }
+            }
+
         }
         if (mDirPaths.size() > 0) {
             dirNameContent = mDirPaths.get(0).toString();
             dirCountContent = imageList.size();
         }
         cursor.close();
-        preData();
         myhHandle.sendEmptyMessage(0X11);
     }
 
-    private void preData() {
-        fileList = new ArrayList<>();
-        for (String path : mDirPaths) {
-            FileBean bean = new FileBean();
-            int count = 0;
-            String fristPath = "";
-            for (ImageInfo imageInfo : imageList) {
-                if (imageInfo.getDirPath().equals(path)) {
-                    count++;
-                    bean.setDirPath(imageInfo.getDirPath());
-                    if (!fristPath.equals(""))
-                        fristPath = imageInfo.getPath();
-                }
-            }
-            bean.setFileCount(count);
-            bean.setFristPath(fristPath);
-            fileList.add(bean);
-        }
-    }
 
     private void initView() {
         relativeLayout = (RelativeLayout) findViewById(R.id.rlayout);
