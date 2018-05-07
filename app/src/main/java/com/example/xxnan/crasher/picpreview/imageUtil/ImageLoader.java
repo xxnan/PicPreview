@@ -135,11 +135,10 @@ public class ImageLoader {
                 public void run() {
                     ImageSize imageSize = Util.getImageSize(imageView);
                     BitmapFactory.Options option = new BitmapFactory.Options();
-                    //不加载到内存，值获取图片的大小
-                    option.inJustDecodeBounds = true;
                     BitmapFactory.decodeFile(path, option);
                     int inSampleSize = cacluteInSingleOpition(option, imageSize.width, imageSize.height);
-                    option.inJustDecodeBounds=false;
+                    //不加载到内存，值获取图片的大小
+                    option.inJustDecodeBounds=true;
                     option.inSampleSize=inSampleSize;
                     Bitmap bitmap=BitmapFactory.decodeFile(path,option);
                     if(bitmap!=null)
